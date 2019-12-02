@@ -1,0 +1,18 @@
+{
+	"name" : "HttpTests",
+	"tree" : {
+		"$className" : "Folder",
+
+		"src" : {
+			"$path" : "src"
+		},
+
+		"packages" : {
+			"$path" : "packages"
+		},
+
+		"testRunner" : {
+			"$path" : "runTests.server.lua"
+		}
+	}
+}

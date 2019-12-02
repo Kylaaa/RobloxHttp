@@ -1,0 +1,9 @@
+[package]
+name = "Http"
+author = "Kylaaa"
+license = "MIT"
+content_root = "src"
+version = "0.0.1"
+
+[dependencies]
+Promise = { git="https://github.com/Kylaaa/RobloxPromise" }

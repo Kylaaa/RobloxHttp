@@ -1,0 +1,23 @@
+{
+	"name" : "Http",
+	"tree" : {
+		"$className" : "Folder",
+
+		"src" : {
+			"$path" : "src"
+		},
+
+		"packages" : {
+			"$className" : "Folder",
+			"_Index" : {
+				"$className" : "Folder",
+				"RobloxPromise-cfa87fcf-22571bbb" : {
+					"$path" : "packages/_Index/RobloxPromise-cfa87fcf-22571bbb"
+				}
+			},
+			"Promise" : {
+				"$path" : "packages/Promise.lua"
+			}
+		}
+	}
+}
