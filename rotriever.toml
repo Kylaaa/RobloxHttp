@@ -7,3 +7,6 @@ version = "0.0.1"
 
 [dependencies]
 Promise = { git="https://github.com/Kylaaa/RobloxPromise" }
+
+[dev-dependencies]
+TestEZ = { git="https://github.com/Roblox/TestEZ" }
