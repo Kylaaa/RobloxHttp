@@ -1,7 +1,10 @@
 {
 	"name" : "Http",
 	"tree" : {
-		"$className" : "Folder",
+		"$className" : "ModuleScript",
+		"$properties" : {
+			"Source" : "return require(script.src)"
+		},
 
 		"src" : {
 			"$path" : "src"

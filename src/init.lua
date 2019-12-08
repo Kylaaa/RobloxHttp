@@ -21,7 +21,7 @@
 -- check dependencies
 local Packages = script.Parent
 assert(require(Packages.Promise) ~= nil, "This Http library requires a Promise library as a sibling.")
-assert(require(Packages.Util)) ~= nil, "This Http library requires a Util library as a sibling")
+assert(require(Packages.Util) ~= nil, "This Http library requires a Util library as a sibling")
 
 return {
 	-- constants and configuration
