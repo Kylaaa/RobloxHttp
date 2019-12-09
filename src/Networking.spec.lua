@@ -12,7 +12,7 @@ return function()
 		
 	end)
 
-	describe("GET()", function()
+	describe("request()", function()
 		it("should validate input", function()
 
 		end)
@@ -20,22 +20,16 @@ return function()
 		it("should return a promise", function()
 
 		end)
+	end)
 
-		it("should allow custom headers", function()
+	describe("GET()", function()
+		it("should act as a formatted request()", function()
 
 		end)
 	end)
 
 	describe("POST()", function()
-		it("should validate input", function()
-
-		end)
-
-		it("should return a promise", function()
-
-		end)
-
-		it("should allow custom headers", function()
+		it("should act as a formatted request()", function()
 
 		end)
 	end)

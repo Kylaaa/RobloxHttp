@@ -2,10 +2,6 @@
 	A promise based Http library
 ]]
 
--- constants
-local Config = script.Parent.Config
-local DEBUG_HTTP = Config.DEBUG_HTTP
-
 -- services
 local HttpService = game:GetService("HttpService")
 
@@ -14,16 +10,35 @@ local Http = script.Parent
 local HttpResponse = require(Http.HttpResponse)
 local HttpError = require(Http.HttpError)
 local Promise = require(Http.Parent.Promise)
-local recursiveToString = require(Http.Parent.Util.recursiveToString)
 
 
 local Networking = {}
 Networking.__index = Networking
 
--- httpImpl : (table, optional) a service that implements RequestAsync
-function Networking.new(httpImpl)
-	if not httpImpl then
-		httpImpl = HttpService
+-- args : (table, optional)
+-- args.httpImpl : (table, optional) a service that implements RequestAsync
+-- args.DEBUG : (boolean, optional) logs messages when 
+-- args.ALLOW_YIELDING : (boolean, optional) when false, resolves all requests syncronously
+function Networking.new(args)
+	local httpImpl = HttpService
+	local DEBUG = false
+	local ALLOW_YIELDING = false
+
+	if args then
+		if args.httpImpl then
+			assert(args.httpImpl.RequestAsync ~= nil, "the Http implementation must define 'RequestAsync'")
+			httpImpl = args.httpImpl
+		end
+
+		if args.DEBUG then
+			assert(type(args.DEBUG) == "boolean", "expected 'DEBUG' to be a boolean")
+			DEBUG = args.DEBUG
+		end
+
+		if args.ALLOW_YIELDING then
+			assert(type(args.ALLOW_YIELDING) == "boolean", "expected 'ALLOW_YIELDING' to be a boolean")
+			ALLOW_YIELDING = args.ALLOW_YIELDING
+		end
 	end
 
 	local n = {
@@ -34,6 +49,8 @@ function Networking.new(httpImpl)
 
 		-- the object that will fire the http requests
 		_httpImpl = httpImpl
+
+		_DEBUG = 
 	}
 	setmetatable(n, Networking)
 
@@ -73,17 +90,29 @@ end
 
 -- url : (string, read-only) copy of target url that httpRequestFunc will hit
 -- httpRequestFunc : (function<dictionary>(void))
-function Networking:request(url, httpRequestFunc)
-	assert(type(url) == "string", "expected 'url' to be a string")
-	assert(type(httpRequestFunc) == "function", "expected 'httpRequestFunc' to be a function")
+function Networking:request(options)
+	assert(type(options) == "table", "expecte 'options' to be a table")
+	assert(type(options["Url"]) == "string", "expected 'options.Url' to be a string")
+	assert(type(options["Method"]) == "string", "expected 'options.Method' to be a string")
 
 	local p = Promise.new(function(resolve, reject)
-
-		spawn(function()
+		local function createHttpPromise()
 			local startTime = tick()
-			local success, resultDict = pcall(httpRequestFunc)
+			local success, resultDict = pcall(self._httpImpl.RequestAsync, self._httpImpl, options)
 			local endTime = tick()
 			local deltaMs = (endTime - startTime) * 1000
+
+			if self._DEBUG_HTTP then
+				local msg = table.concat(
+				{
+					"--------------------------",
+					"Fetching Url :" .. url, "",
+					"Success :" .. tostring(success), "",
+					"Result :", tostring(resultDict),
+					"--------------------------"
+				}, "\n")
+				print(msg)
+			end
 
 			if success then
 				local body = resultDict["Body"]
@@ -100,19 +129,14 @@ function Networking:request(url, httpRequestFunc)
 				-- the request timed out, or something went wrong
 				reject(HttpResponse.new(url, "Unknown Error", resultDict, 500, deltaMs))
 			end
+		end
 
-			if DEBUG_HTTP then
-				local msg = table.concat(
-				{
-					"--------------------------",
-					"Fetching Url :" .. url, "",
-					"Success :" .. tostring(success), "",
-					"Result :", recursiveToString(resultDict),
-					"--------------------------"
-				}, "\n")
-				print(msg)
-			end
-		end)
+		-- 
+		if self._ALLOW_YIELDING then
+			spawn(createHttpPromise)
+		else
+			createHttpPromise()
+		end
 	end)
 
 	return p

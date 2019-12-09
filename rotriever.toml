@@ -3,10 +3,11 @@ name = "Http"
 author = "Kylaaa"
 license = "MIT"
 content_root = "src"
-version = "0.0.1"
+version = "0.0.2"
 
 [dependencies]
 Promise = { git="https://github.com/Kylaaa/RobloxPromise" }
+UtilTable = { git="https://github.com/Kylaaa/RobloxUtilTable" }
 
 [dev-dependencies]
 TestEZ = { git="https://github.com/Roblox/TestEZ" }

@@ -3,7 +3,7 @@
 ]]
 local PackageIndex = script.Parent._Index
 
-local package = PackageIndex["RobloxPromise-cfa87fcf-40a9cecd"].Packages["RobloxPromise"]
+local package = PackageIndex["UtilTable-a88be83f-4a5172a7"].Packages["UtilTable"]
 
 if package.ClassName == "ModuleScript" then
 	return require(package)

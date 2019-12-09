@@ -6,5 +6,12 @@ lockfile_format_version = 0
 name = "RobloxPromise"
 type = "git"
 source = "https://github.com/kylaaa/robloxpromise"
-commit = "22571bbbb1d6a3640d567287b54ef76053e469e6"
+commit = "40a9cecdaa7be1836e2375094a8033e90d23471e"
+rev = "master"
+
+[[package]]
+name = "UtilTable"
+type = "git"
+source = "https://github.com/kylaaa/robloxutiltable"
+commit = "4a5172a7a88d5041f7b2cf9db458def7feb36a1b"
 rev = "master"
