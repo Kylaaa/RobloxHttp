@@ -1,5 +1,5 @@
 [package]
-name = "kyler/http"
+name = "kylaaa/http"
 description = "A promise based wrapper around HttpService."
 version = "0.1.0"
 registry = "https://github.com/UpliftGames/wally-index"
