@@ -35,7 +35,7 @@ function HttpError.new(targetUrl, errMsg, resBody, errCode, resTime, options)
 end
 
 function HttpError.isSuccessfulError(errorCode)
-	-- any 2XX response is technically a success, but requests
+	-- any 2XX response is technically a success, but any request that isn't 200 will be flagged as a failure
 	return errorCode > 200 and errorCode < 300
 end
 

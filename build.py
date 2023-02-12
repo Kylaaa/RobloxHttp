@@ -1,4 +1,11 @@
 import subprocess
 
-subprocess.run("rojo build -o bin/Http.rbxm default.project.json")
-subprocess.run("rojo build -o bin/HttpTests.rbxm testRunner.project.json")
+commands = [
+	"foreman install",
+	"wally install",
+	"rojo build -o Bin/Http.rbxm default.project.json",
+	"rojo build -o Bin/HttpTests.rbxm testRunner.project.json"
+];
+
+for c in commands:
+	subprocess.run(c);

@@ -3,15 +3,19 @@
 	"tree" : {
 		"$className" : "Folder",
 
-		"src" : {
-			"$path" : "src"
+		"Src" : {
+			"$path" : "Src"
 		},
 
-		"packages" : {
-			"$path" : "packages"
+		"Packages" : {
+			"$path" : "Packages"
 		},
 
-		"testRunner" : {
+		"DevPackages" : {
+			"$path" : "DevPackages"
+		},
+
+		"TestRunner" : {
 			"$path" : "runTests.server.lua"
 		}
 	}

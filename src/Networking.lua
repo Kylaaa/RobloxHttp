@@ -9,7 +9,7 @@ local HttpService = game:GetService("HttpService")
 local Http = script.Parent
 local HttpResponse = require(Http.HttpResponse)
 local HttpError = require(Http.HttpError)
-local Promise = require(Http.Parent.Promise)
+local Promise = require(Http.Parent.Packages.Promise)
 
 
 local Networking = {}
@@ -17,12 +17,13 @@ Networking.__index = Networking
 
 -- args : (table, optional)
 -- args.httpImpl : (table, optional) a service that implements RequestAsync
+-- args.ALLOW_YIELDING : (boolean, optional) when false, resolves all requests syncronously, good for tests
 -- args.DEBUG : (boolean, optional) logs messages when 
--- args.ALLOW_YIELDING : (boolean, optional) when false, resolves all requests syncronously
+-- returns : (Promise<HttpResponse/HttpError>)
 function Networking.new(args)
 	local httpImpl = HttpService
 	local DEBUG = false
-	local ALLOW_YIELDING = false
+	local ALLOW_YIELDING = true
 
 	if args then
 		if args.httpImpl then
@@ -30,14 +31,14 @@ function Networking.new(args)
 			httpImpl = args.httpImpl
 		end
 
-		if args.DEBUG then
-			assert(type(args.DEBUG) == "boolean", "expected 'DEBUG' to be a boolean")
-			DEBUG = args.DEBUG
-		end
-
 		if args.ALLOW_YIELDING then
 			assert(type(args.ALLOW_YIELDING) == "boolean", "expected 'ALLOW_YIELDING' to be a boolean")
 			ALLOW_YIELDING = args.ALLOW_YIELDING
+		end
+
+		if args.DEBUG then
+			assert(type(args.DEBUG) == "boolean", "expected 'DEBUG' to be a boolean")
+			DEBUG = args.DEBUG
 		end
 	end
 
@@ -48,9 +49,11 @@ function Networking.new(args)
 		},
 
 		-- the object that will fire the http requests
-		_httpImpl = httpImpl
+		_httpImpl = httpImpl,
 
-		_DEBUG = 
+		-- configuration variables
+		_DEBUG = DEBUG,
+		_ALLOW_YIELDING = ALLOW_YIELDING,
 	}
 	setmetatable(n, Networking)
 
@@ -88,8 +91,13 @@ function Networking.mock(urlResponseMap)
 	return Networking.new(mockHttpService)
 end
 
--- url : (string, read-only) copy of target url that httpRequestFunc will hit
--- httpRequestFunc : (function<dictionary>(void))
+
+-- options : (table) a map of arguments to pass to HttpService.RequestAsync
+-- options.Url : (string)
+-- options.Method : (string)
+-- options.Headers : (table, optional)
+-- options.Body : (string, optional, required when Method == "POST")
+-- returns : (Promise<HttpResponse/HttpError>)
 function Networking:request(options)
 	assert(type(options) == "table", "expecte 'options' to be a table")
 	assert(type(options["Url"]) == "string", "expected 'options.Url' to be a string")
@@ -102,7 +110,7 @@ function Networking:request(options)
 			local endTime = tick()
 			local deltaMs = (endTime - startTime) * 1000
 
-			if self._DEBUG_HTTP then
+			if self._DEBUG then
 				local msg = table.concat(
 				{
 					"--------------------------",
@@ -127,11 +135,11 @@ function Networking:request(options)
 				end
 			else
 				-- the request timed out, or something went wrong
-				reject(HttpResponse.new(url, "Unknown Error", resultDict, 500, deltaMs))
+				reject(HttpError.new(url, "Unknown Error", resultDict, 500, deltaMs))
 			end
 		end
 
-		-- 
+		-- tests don't allow yielding, so 
 		if self._ALLOW_YIELDING then
 			spawn(createHttpPromise)
 		else
@@ -143,10 +151,43 @@ function Networking:request(options)
 end
 
 
+-- requestPromise : (Promise<HttpResponse/HttpError>) a promise from self:request
+-- numRequests : (int) the number of times the request should be sent before failing
+-- returns : (Promise<HttpResponse/HttpError>)
+function Networking:retry(requestPromise, numRequests)
+
+end
+
+
+-- requestPromise : (Promise<HttpResponse/HttpError>) a promise from self:request
+-- returns : (Promise<HttpResponse/HttpError>)
+function Networking:parseJSON(requestPromise)
+	assert(requestPromise.andThen ~= nil, "'requestPromise' must be a Promise")
+
+	-- attempt to convert the body from a string to a table
+	return requestPromise:andThen(function(httpResponse)
+		if self._DEBUG then
+			print("Attempting to parse the response...")
+		end
+		local success, jsonBody = pcall(HttpService.JSONDecode, HttpService, httpResponse.Body)
+		if not success then
+			if self._DEBUG then
+				print("Attempting to parse the response...")
+			end
+			return Promise.reject()
+		end
+
+		httpResponse.Body = jsonBody
+		return httpResponse
+
+	end, function(httpError)
+		return httpError
+	end)
+end
 
 -- url : (string)
 -- customHeaders : (dictionary<string, string>, optional)
--- returns : (promise<HttpResponse/HttpError>)
+-- returns : (Promise<HttpResponse/HttpError>)
 function Networking:GET(url, customHeaders)
 	if not customHeaders then
 		customHeaders = self._headers
@@ -155,22 +196,18 @@ function Networking:GET(url, customHeaders)
 	assert(type(url) == "string", "expected 'url' to be a string")
 	assert(type(customHeaders) == "table", "expected 'customHeaders' to be a dictionary")
 
-	local httpFunc = function()
-		return self._httpImpl:RequestAsync({
-			Url = url,
-			Method = "GET",
-			Headers = customHeaders,
-		})
-	end
-
-	return commonHttpHandler(url, httpFunc)
+	return self:request({
+		Url = url,
+		Method = "GET",
+		Headers = customHeaders,
+	})
 end
 
 
 -- url : (string)
 -- body : (string)
 -- customHeaders : (dictionary<string, string>, optional)
--- returns : (promise<HttpResponse/HttpError>)
+-- returns : (Promise<HttpResponse/HttpError>)
 function Networking:POST(url, body, customHeaders)
 	if not customHeaders then
 		customHeaders = self._headers
@@ -180,16 +217,12 @@ function Networking:POST(url, body, customHeaders)
 	assert(type(body) == "string", "expected 'body' to be a string")
 	assert(type(customHeaders) == "table", "expected 'customHeaders' to be a dictionary")
 
-	local httpFunc = function()
-		return self._httpImpl:RequestAsync({
-			Url = url,
-			Method = "POST",
-			Headers = customHeaders,
-			Body = body,
-		})
-	end
-
-	return commonHttpHandler(url, httpFunc)
+	return self:request({
+		Url = url,
+		Method = "POST",
+		Headers = customHeaders,
+		Body = body,
+	})
 end
 
 return Networking

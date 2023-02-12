@@ -3,24 +3,15 @@
 	"tree" : {
 		"$className" : "ModuleScript",
 		"$properties" : {
-			"Source" : "return require(script.src)"
+			"Source" : "return require(script.Src)"
 		},
 
-		"src" : {
-			"$path" : "src"
+		"Src" : {
+			"$path" : "./Src"
 		},
 
-		"packages" : {
-			"$className" : "Folder",
-			"_Index" : {
-				"$className" : "Folder",
-				"RobloxPromise-cfa87fcf-40a9cecd" : {
-					"$path" : "packages/_Index/RobloxPromise-cfa87fcf-40a9cecd"
-				}
-			},
-			"Promise" : {
-				"$path" : "packages/Promise.lua"
-			}
+		"Packages" : {
+			"$path" : "./Packages"
 		}
 	}
 }

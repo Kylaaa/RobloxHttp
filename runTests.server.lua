@@ -1,6 +1,6 @@
-local Http = script.Parent
-local targetSource = Http.src
-local TestEZ = require(Http.packages.TestEZ)
+local Project = script.Parent
+local TargetSource = Project.Src
+local TestEZ = require(Project.DevPackages.TestEZ)
 local Reporter = TestEZ.Reporters.TextReporterQuiet
 
-TestEZ.TestBootstrap:run(targetSource:GetChildren(), Reporter)
+TestEZ.TestBootstrap:run(TargetSource, Reporter)
