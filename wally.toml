@@ -1,13 +1,11 @@
 [package]
 name = "kylaaa/http"
 description = "A promise based wrapper around HttpService."
-version = "0.1.0"
+license = "MIT"
+version = "0.2.0"
 registry = "https://github.com/UpliftGames/wally-index"
 realm = "shared"
 include = ["Src", "Packages", "default.project.json"]
 
 [dependencies]
 Promise = "evaera/promise@4.0.0"
-
-[dev-dependencies]
-testez = "roblox/testez@0.4.1"
