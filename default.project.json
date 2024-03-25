@@ -1,5 +1,6 @@
 {
 	"name" : "Http",
+	"globIgnorePaths": ["**/*.server.lua", "**/*.client.lua", "**/*.spec.lua"],
 	"tree" : {
 		"$className" : "ModuleScript",
 		"$properties" : {
