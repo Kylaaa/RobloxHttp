@@ -1,4 +1,4 @@
-local Networking = require(script.Parent.Networking)
+local Networking = require(script.Parent)
 
 return function()
 	describe("new()", function()
